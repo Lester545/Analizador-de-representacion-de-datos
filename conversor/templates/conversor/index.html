@@ -1,0 +1,260 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analizador de representación de datos</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        header h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #1f3a5f;
+        }
+        header p {
+            margin: 6px 0 0;
+            color: #555;
+            font-size: 14px;
+        }
+        .tarjetas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 640px) {
+            .tarjetas { grid-template-columns: 1fr; }
+        }
+        tarjeta, .tarjeta {
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        h2 {
+            font-size: 17px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #1f3a5f;
+            border-bottom: 2px solid #eef2f6;
+            padding-bottom: 8px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #b9c2cc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        select {
+            cursor: pointer;
+        }
+        .fila-botones {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #1f3a5f;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        button:hover { background: #2a4e77; }
+        button.secondary { background: #6b7a8d; }
+        button.secondary:hover { background: #5a687a; }
+
+        .error {
+            color: #b3261e;
+            background: #fdecea;
+            border: 1px solid #f5c6c3;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        ul.errores { margin: 0; padding-left: 18px; }
+
+        .resultado {
+            background: #eef6ff;
+            border: 1px solid #c7dffe;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .resultado h3 {
+            margin: 0 0 10px;
+            font-size: 15px;
+            color: #1f3a5f;
+        }
+        .resultado table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .resultado th, .resultado td {
+            text-align: left;
+            padding: 6px 8px;
+            border-bottom: 1px solid #d7e3ff;
+        }
+        .resultado th { color: #1f3a5f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; width: 40%; }
+
+        .analisis {
+            margin-top: 16px;
+        }
+        .analisis h3 {
+            margin: 0 0 10px;
+            font-size: 15px;
+            color: #1f3a5f;
+        }
+        .analisis table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .analisis th, .analisis td {
+            border: 1px solid #d8dee6;
+            padding: 7px 10px;
+            text-align: left;
+        }
+        .analisis th { background: #f2f5f8; color: #1f3a5f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .mono { font-family: Consolas, Menlo, monospace; }
+
+        .pies {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            border-top: 1px solid #d8dee6;
+            padding-top: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Analizador de representación de datos</h1>
+            <p>Sistemas numéricos, codificación de caracteres y análisis de representación</p>
+        </header>
+
+        <div class="tarjetas">
+            <section class="tarjeta">
+                <h2>1. Conversión de sistemas numéricos</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="numerico">
+                    {{ form_num.numero.label_tag }}
+                    {{ form_num.numero }}
+                    {{ form_num.base.label_tag }}
+                    {{ form_num.base }}
+                    {% if form_num.non_field_errors or form_num.numero.errors or form_num.base.errors %}
+                        <div class="error">
+                            <ul class="errores">
+                                {% for e in form_num.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+                                {% for e in form_num.numero.errors %}<li>{{ e }}</li>{% endfor %}
+                                {% for e in form_num.base.errors %}<li>{{ e }}</li>{% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="fila-botones">
+                        <button type="submit">Convertir</button>
+                        <button type="reset" class="secondary">Limpiar</button>
+                    </div>
+                </form>
+
+                {% if resultado_num %}
+                    <div class="resultado">
+                        <h3>Resultado para <strong>{{ resultado_num.numero_original }}</strong> (base {{ resultado_num.base_origen }})</h3>
+                        <table>
+                            <tr><th>Decimal</th><td>{{ resultado_num.decimal }}</td></tr>
+                            <tr><th>Binario (ajuste a byte)</th><td class="mono">{{ resultado_num.binario }}</td></tr>
+                            <tr><th>Octal</th><td>{{ resultado_num.octal }}</td></tr>
+                            <tr><th>Hexadecimal</th><td>{{ resultado_num.hexadecimal }}</td></tr>
+                            <tr><th>Bits significativos</th><td>{{ resultado_num.bits_significativos }}</td></tr>
+                            <tr><th>Bytes necesarios</th><td>{{ resultado_num.bytes_necesarios }}</td></tr>
+                        </table>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="tarjeta">
+                <h2>2. Análisis de caracteres (UTF-8)</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="texto">
+                    {{ form_txt.texto.label_tag }}
+                    {{ form_txt.texto }}
+                    {% if form_txt.non_field_errors or form_txt.texto.errors %}
+                        <div class="error">
+                            <ul class="errores">
+                                {% for e in form_txt.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+                                {% for e in form_txt.texto.errors %}<li>{{ e }}</li>{% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="fila-botones">
+                        <button type="submit">Analizar</button>
+                        <button type="reset" class="secondary">Limpiar</button>
+                    </div>
+                </form>
+
+                {% if analisis_texto %}
+                    <div class="analisis">
+                        <h3>Caracteres de "{{ analisis_texto.0.caracter|first }}"...</h3>
+                        <table>
+                            <tr>
+                                <th>Carácter</th>
+                                <th>Código decimal</th>
+                                <th>Punto U+</th>
+                                <th>Hex</th>
+                                <th>Bytes UTF-8</th>
+                            </tr>
+                            {% for item in analisis_texto %}
+                            <tr>
+                                <td class="mono">{{ item.caracter }}</td>
+                                <td>{{ item.decimal }}</td>
+                                <td class="mono">{{ item.punto_unicode }}</td>
+                                <td class="mono">{{ item.hex }}</td>
+                                <td class="mono">{{ item.bytes_utf8 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <div class="pies">
+            Analizador de representación de datos &middot; Django &middot; Python
+        </div>
+    </div>
+</body>
+</html>
